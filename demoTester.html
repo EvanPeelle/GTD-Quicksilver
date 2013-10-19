@@ -1,0 +1,70 @@
+<html>
+<head>
+  <script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js" type="text/javascript"></script>
+  <script src="library/verbList.js"></script>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <script src="library/Chart.js"></script>
+  <script src="library/parse.js"></script>
+  <link rel="stylesheet" href="library/style.css">
+</head>
+<body>
+  <div>
+    <li>hello and accept it as it is</li>
+    <li>goodbye</li>
+    <li id='one'>hello 000</li>
+    <li>gooooooood</li>
+    <li>as it is</li>
+    <li>bye</li>
+  </div>
+ <div></div>
+ <textarea id='output'></textarea>
+</body>
+<script>
+
+var client = new Dropbox.Client({key: 'j37v18c5tdi8xu4'});
+
+// Try to finish OAuth authorization.
+client.authenticate({interactive: false}, function (error) {
+    if (error) {
+        alert('Authentication error: ' + error);
+    }
+});
+
+if (client.isAuthenticated()) {
+    console.log('works')// Client is authenticated. Display UI.
+}
+
+
+$('body').click(function(){
+  client.authenticate();
+  console.log(Object.keys(combined))
+})
+
+//"file:///Users/Skynet/Desktop/Dropbox/smoothgit/ParameterGetter/demoTester.html"
+
+// var datastoreManager = client.getDatastoreManager();
+// datastoreManager.openDefaultDatastore(function (error, datastore) {
+//     if (error) {
+//         alert('Error opening default datastore: ' + error);
+//     }
+
+//     // Now you have a datastore. The next few examples can be included here.
+// });
+
+//var taskTable = datastore.getTable('tasks');
+
+var combined = {
+  'search':        [undefined, '#list'],
+  'visionInput':   [86,'#vision'],
+  '':              [67,'#calendar'],
+  'goalsInput':    [71,'#goals'],
+  'aofInput':      [70,'#aof'],
+  'projectsInput': [80,'#projects'],
+  'search2':       [65,'#actionVerb']
+};
+
+
+</script>
+</html>

@@ -1,0 +1,33 @@
+#one{
+  height:20px;
+  width:20px;
+  background-color:yellow;
+  float:left;
+}
+#two{
+  height:20px;
+  width:20px;
+  background-color:blue;
+  float:left;
+}
+#container{
+  height:20px;
+  width:40px;
+  background-color:green;
+
+}
+
+/*div{
+  background-color: gray;
+margin: 0px;
+height: 20px;
+width: 20px;
+float:none;
+}
+
+#total {
+  background-color: black;
+  margin: 1px;
+  width: 30px;
+  height: 30px;
+}*/

@@ -1,0 +1,293 @@
+<html>
+<head>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <link rel="stylesheet" href="library/style.css">
+  <script src="library/Chart.js"></script>
+</head>
+<body>
+  <title>GTD</title>
+  <div id='collect'>
+    <input type='text' value='>' id="search"><br>
+    <div id='system'>
+      <em id='in'>inbox</em>
+      <div id='list'></div>
+      <em>actionVerb</em>
+      <div id='actionVerb'></div>
+      <em>projects Outcome</em>
+      <div id='projects'></div>
+      <em>areas of focus</em>
+      <div id='aof'></div>
+      <em>goals</em>
+      <div id='goals'></div>
+      <em>calendar</em>
+      <div id='calendar'></div>
+      <em>vision</em>
+      <div id='vision'></div>
+    </div>
+  </div>
+  <div id='process'>
+    <div id='actionVerb'>
+      <input type='text' value='*' id="search2">
+    </div>
+      <div id='actionContext'><em>where?</em><br>
+        <input type="radio" name="context1" class="contextClass" style="width: 10%; " value="@online"/> @online<br>
+        <input type="radio" name="context2" class="contextClass" style="width: 10%; " value="@local"/> @local<br>
+        <input type="radio" name="context3" class="contextClass" style="width: 10%; " value="@away"/> @away<br>
+      </div>
+      <div id='actionTime'><em>duration?</em><br>
+        <input type="radio" name="time1" class="timeClass" style="width: 10%; " value="mins"/> mins<br>
+        <input type="radio" name="time2" class="timeClass" style="width: 10%; " value="block"/> block<br>
+        <input type="radio" name="time3" class="timeClass" style="width: 10%; " value="ongoing"/> ongoing<br>
+      </div>
+      <div id='processProjects'>
+        <br><em id="proMid">What's your Outcome?</em>
+        <input id='projectsInput'>
+        <br>
+        <br><input type="text" value='+actions...' id="actionAttached">
+      </div>
+    </div>
+  </div>
+<div>Import Portal
+  <textarea rows="9" cols="5" id="newItems"></textarea>
+  <button id="import">inbox import</button></div>
+</body>
+<script>
+
+$('#import').click(function() {
+  // var items = $("#newItems").val()
+  var items = $('#newItems').val().split('\n');
+  $('#newItems').val('');
+  _.each(items, function(item){
+     //where am i prepending it to?
+     $('#list').prepend('<li>' + item + '</li>');
+     console.log(item)
+  //   //do i need to put that into an array?
+  //   //add <li> + item +</li> to each one
+  //   //Prepend that to the inbox list.
+  });
+
+})
+
+
+// $( "p" ).click(function() {
+//   $( this ).slideUp();
+// });
+
+//start of app
+document.getElementById('search').focus()
+  //enter new items into inbox
+  $("#search").keyup(function (e) {
+      var value = $(this).val();
+      if (e.keyCode == 13) {
+        $(this).val('');
+        $('#list').append('<li>' + value + '</li>');
+      }
+
+    }).keyup();
+  //delete the item from the first inbox
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 68) {
+      $('#list').children().first().remove()
+      return false;
+    }
+  })
+  //actionVerb
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 65) {
+      var $itemPassed = $('#list').children().first()
+      $('#actionVerb').append($itemPassed);
+      return false;
+    }
+  })
+  //project
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 80) {
+      var $itemPassed = $('#list').children().first()
+      $('#projects').append($itemPassed);
+      //$('li').first().remove()
+      return false;
+    }
+  })
+  //areas of focus add it to it
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 70) {
+      var $itemPassed = $('#list').children().first()
+      $('#aof').append($itemPassed);
+      return false;
+    }
+  })
+  //goals add it to it
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 71) {
+      var $itemPassed = $('#list').children().first()
+      $('#goals').append($itemPassed);
+      return false;
+    }
+  })
+  //calendar add it to it
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 67) {
+      var $itemPassed = $('#list').children().first()
+      $('#calendar').append($itemPassed);
+      return false;
+    }
+  })
+  //vision add it to it
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 86) {
+      var $itemPassed = $('#list').children().first()
+      $('#vision').append($itemPassed);
+      return false;
+    }
+  })
+//edit and replace actions in Action queue.
+$("#search2").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $(this).val('');
+    $('#actionVerb').append('<li>' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+  }
+})
+//first radio button submit procedure
+$("input[name='context1']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var one = $('input[name="context1"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + one + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+//second radio button submit procedure
+$("input[name='context2']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var one = $('input[name="context2"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + one + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+//third radio button submit procedure
+$("input[name='context3']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var one = $('input[name="context3"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + one + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+
+//delete within each list...
+//if the cursor is in a specific input, then
+//delete the first li in that coresponding list.
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 68) {
+      var doc = document.activeElement;
+      if($(doc).attr('id') == 'search2'){
+      console.log('works')
+      $('#actionVerb').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'projectsInput'){
+        $('#projects').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'actionVerb'){
+        $('#actionVerb').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'actionAttached'){
+        $('#actionAttached').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'calendar'){
+        $('#calendar').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'search'){
+        $('#vision').children().first().remove()
+      }
+      
+      return false;
+    }
+  })
+
+// var doc = document.activeElement;
+// if($(doc).attr('id') == 'search'){
+//   console.log('works')
+// }
+
+//shift n = next, shift j = previous
+
+//when return is clicked...
+  //iterate over the buttons by name{s}
+    //for each use function
+      //$grab this prop if checked true as var x
+      //take x and append it to the first in the actions list
+      //then default it to false
+      //then return the cursor
+      //done
+
+//first radio button submit procedure
+$("input[name='time1']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var two = $('input[name="time1"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + two + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+
+//PROJECTS:
+$("#projectsInput").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $(this).val('');
+    $('#projects').append('<li>' + value + '</li>');
+    $('#projects').children().first().remove()
+  }
+})
+
+$("#actionAttached").bind('keydown', function(e) {
+  var value = $(this).val();
+  var projectId = $('#projects').children().first().html()
+  if (e.keyCode == 13) {
+    $('#actionVerb').append('<li>' + '^' + projectId + ' < ' + value + '</li>');
+    $(this).val('');
+  }
+})
+
+</script>
+</html>

@@ -1,0 +1,453 @@
+<html>
+<head>
+  <script src="https://www.dropbox.com/static/api/dropbox-datastores-1.0-latest.js" type="text/javascript"></script>
+  <script src="library/verbList.js"></script>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <script src="library/Chart.js"></script>
+  <script src="library/parse.js"></script>
+  <link rel="stylesheet" href="library/style.css">
+</head>
+<body>
+  <title>GTD</title>
+  <div id='layout'>
+    <div id='column'>
+      <div id='importColumn'>
+        <textarea rows="9" cols="5" id="newItems"></textarea>
+        <button id="import">import</button>
+      </div>
+      <em>in</em><br>
+      <input type='text' value='' id="search"><br>
+      <div id='list'></div>
+      <em>@verbs</em><br>
+      <input type='text' value='' id="search2">
+        <div id='actionVerb'></div>
+        <br><em>outcome</em>
+          <input id='projectsInput'><br>
+          <input type="text" value='' id="actionAttached">
+        <div id='projects'></div>
+        <a href="https://www.google.com/calendar/render?tab=mc" target="_blank">
+          <em>@time</em>
+        </a>
+        <div id='calendar'></div>
+        <a href="https://docs.google.com/spreadsheet/ccc?key=0Arbw3VZyZ1zudHQ0MWtiYkFUdlZiYVItdl9aYWJMUVE#gid=2" target='_blank'>
+          <em>responsibilities</em></a>
+        <input id='aofInput'><br>
+        <input id='aofAttached'><br>
+        <div id='aof'></div>
+        <a href="https://docs.google.com/spreadsheet/ccc?key=0Arbw3VZyZ1zudHQ0MWtiYkFUdlZiYVItdl9aYWJMUVE#gid=2" target='_blank'>
+          <em>milestones</em>
+        </a>
+        <input id='goalsInput'><br>
+        <input id='goalsAttached'><br>
+        <div id='goals'></div>
+        <a href="https://docs.google.com/document/d/1N_IG1j13_tz7ZjmZNp36K9TUESgbcbFTnBIbKTYsJmQ/edit#heading=h.uxuzqgrbxnvq" target='_blank'>
+          <em>vision</em>
+        </a>
+        <input id='visionInput'><br>
+        <input id='visionAttached'><br>
+      <div id='vision'></div>
+    </div>
+    <div id='reveal' style="display: none">
+    <div id='viewing' >actions<br>
+      <textarea rows="40" cols="30" id="output"></textarea>
+    </div>
+      <div>
+        projects<br><textarea rows="20" cols="30" id="output2"></textarea>
+      </div>
+      </div>
+    </div>
+</body>
+<script>
+document.getElementById('search').focus()
+//print each action li into output
+$('button').click(function() {
+  var contents = ''
+  $("#actionVerb li").each(function() {
+    contents = contents + $(this).text() + '\n';
+  });
+  $('#output').val( contents );
+});
+
+Parse.initialize("9YwjuJO5DCYjjWXjIEwW9iYrYfwPL1Lv68PDLLS3", "dqqjAMVw5VW4n3OnUyOa3CCIykaFZaOzW5heRL6C");
+var Actions = Parse.Object.extend('Actions');
+var Projects = Parse.Object.extend('Projects');
+
+//import textarea
+$('#import').click(function() {
+  var items = $('#newItems').val().split('\n');
+  if(items == false){return false}
+  $('#newItems').val('');
+  _.each(items, function(item){
+     $('#list').prepend('<li>' + item + '</li>');
+  });
+  return false;
+})
+
+//add new items into inbox
+$("#search").keyup(function (e) {
+  var value = $(this).val();
+  if(value == false){return false}
+  else if (e.keyCode == 13) {
+    $(this).val('');
+    $('#list').append('<li>' + value + '</li>');
+    return false;
+  }
+}).keyup();
+
+//delete within each list
+$("body").bind('keydown', function(e) {
+  if (e.shiftKey && e.keyCode == 68) {
+    var doc = document.activeElement;
+    if($(doc).attr('id') == 'search'){
+      $('#list').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'search2'){
+      $('#actionVerb').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'projectsInput'){
+      $('#projects').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'actionVerb'){
+      $('#actionVerb').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'projectsInput'){
+      $('#actionAttached').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'calendar'){
+      $('#calendar').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'search'){
+      $('#vision').children().first().remove()
+    }
+    return false;
+  }
+});
+
+//inputID, keycode, divID
+var combined = [
+  ['search', undefined, '#list'],
+  ['search2',       65, '#actionVerb'],
+  ['projectsInput', 80, '#projects'],
+  ['',              67, '#calendar'],
+  ['aofInput',      70, '#aof'],
+  ['goalsInput',    71, '#goals'],
+  ['visionInput',   86, '#vision']
+];
+//insert each item respectively from any activeElement.
+$('body').bind('keydown', function(e) {
+  //delivers the input id;
+  var $currentInput = $(document.activeElement).attr('id');
+  for(var i = 0; i < combined.length; i++) {
+    if( $currentInput == combined[i][0]){
+      for(var j = 0; j < combined.length; j++){
+        if(e.shiftKey && e.keyCode == combined[j][1]){
+          var passed = $(combined[i][2]).children().first()
+          $(combined[j][2]).append(passed);
+          return false
+        }
+      }
+    }
+  }
+})
+
+//verb highlights on action items! Boom!
+function doWork() {
+  repeater = setTimeout(doWork, 10000);
+  $("#actionVerb li").each(function( index, elem ) {
+    var string = $(this).html();
+    for(var i = 0; i < verb.length; i++){
+      if(string.indexOf(verb[i]) != -1){
+       $(this).html(string.replace(verb[i], '<span>'+ verb[i] +'</span>'))
+      }
+    }
+  })
+}
+doWork();
+
+//shift + T : output actions in form as a list
+$("body").bind('keydown', function(e) {
+  if (e.shiftKey && e.keyCode == 84) {
+    $( "#reveal" ).show( "slow" );
+    var formFill = '';
+    $('#actionVerb li').each(function(index, elem) {
+      var content = $(this).text();
+      formFill = formFill + content + '\n';
+    })
+  $('#output').val(formFill);
+  //projects feild for output2
+  var formFill2 = '';
+    $('#projects li').each(function(index, elem) {
+      var content2 = $(this).text();
+      formFill2 = formFill2 + content2 + '\n';
+    })
+    $('#output2').val(formFill2)
+    return false;
+  }
+})
+//find and append each action into the vis div.
+var findVisualize = function() {
+  var query = new Parse.Query(Actions);
+  query.find({
+    success: function(object) {
+      for(var i = 0; i < object.length; i++){
+        $('#viewing').append('<li>' + object[i]._serverData.actionName + '</li>');
+      }
+    },
+    error: function(error) {
+      alert("Error: " + error.code + " " + error.message);
+    }
+  })
+}
+var saveActions = function(func) {
+  $('#actionVerb li').each(function(index) {
+    var value = $(this).html()
+    var actions = new Actions();
+    actions.save({actionName: value}, {
+      success: function(object) {
+        console.log('one', object);
+      },
+      error: function(error) {
+        alert("Error: " + error.code + " " + error.message);
+      }
+    })
+  })
+}
+
+//find and append each project into the vis div.[or another div]
+var findVisualize2 = function() {
+  var query = new Parse.Query(Projects);
+  query.find({
+    success: function(object) {
+      for(var i = 0; i < object.length; i++){
+        $('#viewing').append('<li>' + object[i]._serverData.projectName + '</li>');
+      }
+    },
+    error: function(error) {
+      alert("Error: " + error.code + " " + error.message);
+    }
+  })
+}
+var saveProjects = function(func) {
+  $('#processProjects li').each(function(index) {
+    var value = $(this).html()
+    var projects = new Projects();
+    projects.save({projectName: value}, {
+      success: function(object) {
+        console.log('two', object);
+      },
+      error: function(error) {
+        alert("Error: " + error.code + " " + error.message);
+      }
+    })
+  })
+}
+
+//delete object in view area:
+$("body").bind('keydown', function(e) {
+  if (e.shiftKey && e.keyCode == 69) {
+    actions.destroy({
+      success: function(myObject) {
+        console.log('been deleted', myObject)
+      },
+      error: function(myObject, error) {
+        console.log('fail')
+      }
+    })
+  }
+});
+
+//ACTIONS:
+var lengthActions = $('#actionVerb li').length;
+//edit and replace actions in Action queue.
+$("#search2").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $('#actionVerb').append('<li>' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $(this).val('');
+    $('#actionVerb li:eq('+ (lengthActions-1) +')').css('color', 'black');
+    return false;
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    //queueItem();
+    $(this).val('');
+    var contained = $('#actionVerb').children().first().get()
+    $('#actionVerb').append(contained);
+    $('#actionVerb li:eq('+ (lengthActions-1) +')').css('color', 'black');
+    e.preventDefault()
+  }
+})
+
+//PROJECTS:
+var lengthProjects = $('#actionVerb li').length;
+$("#projectsInput").bind('keydown', function(e) {
+  //$('#projects li').hide().slice(0, 1).show();
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $(this).val('');
+    $('#projects').append('<li>' + value + '</li>');
+    $('#projects').children().first().remove()
+    $('#projects li:eq('+ (length-1) +')').css('color', 'black');
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    $(this).val('');
+    var contained = $('#projects').children().first().get()
+    $('#projects').append(contained);
+    $('#projects li:eq('+ (length-1) +')').css('color', 'black');
+    e.preventDefault()
+  }
+})
+
+//project: action append.
+$("#actionAttached").bind('keydown', function(e) {
+  var value = $(this).val();
+  var projectId = $('#projects').children().first().html()
+  if (e.keyCode == 13) { //newone => enter
+    if(value == false){return false}
+    $('#actionVerb').prepend('<li>' + value + '</li>');
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 68) { //delete => d
+    $('#projects').children().first().remove();
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    $(this).val('');
+    var contained = $('#projects').children().first().get()
+    $('#projects').append(contained);
+    e.preventDefault()
+  }
+})
+
+//AOF -
+var lengthFocus = $('#aof li').length;
+//edit and replace actions in Action queue.
+$("#aofInput").bind('keydown', function(e) {
+  //$('#actionVerb li').hide().slice(0, 1).show();
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $('#aof').append('<li>' + value + '</li>');
+    $('#aof').children().first().remove()
+    $(this).val('');
+    $('#aof li:eq('+ (lengthFocus-1) +')').css('color', 'black');
+    return false;
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    //queueItem();
+    $(this).val('');
+    var contained = $('#aof').children().first().get()
+    $('#aof').append(contained);
+    $('#aof li:eq('+ (lengthFocus-1) +')').css('color', 'black');
+    e.preventDefault()
+  }
+})
+
+//AOF: action append.
+$("#aofAttached").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) { //newone => enter
+    if(value == false){return false}
+    $('#projects').prepend('<li>' + value + '</li>');
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 68) { //delete => d
+    $('#aof').children().first().remove();
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    $(this).val('');
+    var contained = $('#aof').children().first().get()
+    $('#aof').append(contained);
+    e.preventDefault()
+  }
+})
+
+//GOALS -
+var lengthGoals = $('#goals li').length;
+//edit and replace actions in Action queue.
+$("#goalsInput").bind('keydown', function(e) {
+  //$('#actionVerb li').hide().slice(0, 1).show();
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $('#goals').append('<li>' + value + '</li>');
+    $('#goals').children().first().remove()
+    $(this).val('');
+    $('#goals li:eq('+ (lengthGoals-1) +')').css('color', 'black');
+    return false;
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    //queueItem();
+    $(this).val('');
+    var contained = $('#goals').children().first().get()
+    $('#goals').append(contained);
+    $('#goals li:eq('+ (lengthGoals-1) +')').css('color', 'black');
+    e.preventDefault()
+  }
+})
+
+//GOALS: action append.
+$("#goalsAttached").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) { //newone => enter
+    if(value == false){return false}
+    $('#aof').prepend('<li>' + value + '</li>');
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 68) { //delete => d
+    $('#goals').children().first().remove();
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    $(this).val('');
+    var contained = $('#goals').children().first().get()
+    $('#goals').append(contained);
+    e.preventDefault()
+  }
+})
+
+//VISION -
+var lengthVision = $('#vision li').length;
+//edit and replace actions in Action queue.
+$("#visionInput").bind('keydown', function(e) {
+  //$('#actionVerb li').hide().slice(0, 1).show();
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $('#vision').append('<li>' + value + '</li>');
+    $('#vision').children().first().remove()
+    $(this).val('');
+    $('#vision li:eq('+ (lengthVision-1) +')').css('color', 'black');
+    return false;
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    //queueItem();
+    $(this).val('');
+    var contained = $('#vision').children().first().get()
+    $('#vision').append(contained);
+    $('#vision li:eq('+ (lengthGoals-1) +')').css('color', 'black');
+    e.preventDefault()
+  }
+})
+
+//vision attached : action append.
+$("#visionAttached").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) { //newone => enter
+    if(value == false){return false}
+    $('#goals').prepend('<li>' + value + '</li>');
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 68) { //delete => d
+    $('#vision').children().first().remove();
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    $(this).val('');
+    var contained = $('#vision').children().first().get()
+    $('#vision').append(contained);
+    e.preventDefault()
+  }
+})
+</script>
+</html>

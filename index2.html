@@ -1,0 +1,89 @@
+<html>
+<head>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <script src="library/style.css" type="style"></script>
+  <link rel="stylesheet" href="library/style.css">
+  <script src="library/Chart.js"></script>
+</head>
+<body>
+  <title>The Typist</title>
+  <canvas id="myChart"></canvas>
+    <div id="start">
+      <span id="first"></span></div>
+      <div id="spaceBar"></div>
+    <div id="go"><span id="typed"></span><span id="selector"></span><span id="toDo"></span></div>
+    <div id="fifth"></div>
+    <div class="result"><p></p></div>
+</body>
+<script>
+
+var getQueryParams = function() {
+  var url = window.location.href;
+  //if(url.indexOf('&') === -1) {return []};
+  //var keyValuePairs = url.split('?')[1].split('&');
+  //return keyValuePairs
+  return url
+};
+
+console.log(getQueryParams());
+
+$.get('file://localhost/Users/Skynet/Desktop/Dropbox/smoothgit/ParameterGetter/SpecRunner.html', function(data) {
+  $('.result').html(data);
+  alert('Load was performed.');
+});
+
+$.get("x");
+
+//do an ajax call to another url, then call this function to get those parameters?
+
+
+var data = [0];
+var dataPenalty = [0];
+var labels = ["Start"];
+var penalty = 5;
+
+  $('#spaceBar').html("press any key to begin your typing challenge!")
+
+  var timeStart = $.now();
+  var snippet = "snippet length one snippet length two";
+  var i = 0;
+  var keyHit = 0;
+
+  //KEYPRESS ACTIONS
+  $('body').keypress(function(event) {
+    $('#spaceBar').hide("press space bar to begin!")
+    console.log(i, snippet[i])
+    var selector = (i < snippet.length) ? snippet[i] : '';
+    var end = snippet.length;
+    var typed = snippet.slice(0,i);
+    console.log("typed",typed)
+    var toDo = snippet.slice(i + 1,end);
+
+    //KEY HIT CONDITIONALS/ACTIONS
+    if(String.fromCharCode(event.which)!==snippet[i-1]) {
+      var x = "Penalty";
+      var error = "x";
+        $("#sixth p").append(error);
+        keyHit+= 2;
+    };
+    //RENDER SPANS ON EACH KEY
+    var renderText = function(){
+      // $('#selector').sethtml(with value passed in);
+      // $('#selector').gethtml(undefined);
+      // $('#selector').html(has dual functionality);
+      $('#selector').html(selector);
+      $('#typed').html(typed);
+      $('#toDo').html(toDo)
+      i++;
+    };
+    renderText();
+    //END OF LINE - SO DO THIS STUFF:
+    if( typed.length === snippet.length){
+      //invoke the render function pass in new snippet length.
+
+    }
+  });
+</script>
+</html>

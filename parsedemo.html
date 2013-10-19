@@ -1,0 +1,111 @@
+<html>
+<head>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <link rel="stylesheet" href="library/style.css">
+  <script src="library/Chart.js"></script>
+  <script src="library/parse.js"></script>
+</head>
+<body>
+  <div id='actionVerb'>list</div>
+  <div id='viewing'>
+    <li>a</li>
+    <li>b</li>
+    <li>c</li>
+    <input type='text' value='' id="search">
+  </div>
+</body>
+<script>
+Parse.initialize("9YwjuJO5DCYjjWXjIEwW9iYrYfwPL1Lv68PDLLS3", "dqqjAMVw5VW4n3OnUyOa3CCIykaFZaOzW5heRL6C");
+
+var Projects = Parse.Object.extend('Projects');
+
+
+var Actions = Parse.Object.extend('Actions');
+var actions = new Parse.Query(Actions);
+// var deleteActions = Parse.Object.destroy('Actions')
+
+
+actions.equalTo('actionsName', 'x');
+
+  actions.find({
+    success: function(success){
+    console.log('find success');
+  },
+  error: function(error) {
+    console.log('failure');
+  }
+}).then(function(object){
+  deleteActions.destroy({
+    success: function(success){
+      console.log('success');
+    },
+    error: function(myObject, error) {
+      console.log("error");
+    }
+  })
+})
+
+// Create our collection of Todos
+      this.todos = new TodoList;
+      // Setup the query for the collection to look for todos from the current user
+      this.todos.query = new Parse.Query(Todo);
+      this.todos.query.equalTo("user", Parse.User.current());
+
+clearCompleted: function() {
+      _.each(this.todos.done(), function(todo){ todo.destroy(); });
+      return false;
+    },
+
+// $("#search").bind('keydown', function(e) {
+//   if (e.shiftKey && e.keyCode == 69) {
+//     var actions = new Actions();
+//   }
+// })
+
+
+
+
+
+
+
+
+
+
+//return => input saved to DB
+$('#search').bind('keydown', function(e) {
+  var actions = new Actions();
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $('#actionVerb').append('<li>' + value + '</li>');//#list
+    $(this).val('');
+    //grab the unique value and save it to the DB
+    actions.set('category', 'default')//change this with speed key category
+    actions.save({actionName: value}, {
+      success: function(object) {
+        console.log(object, 'worked');
+      }
+    })
+  }
+})
+
+//shift v => append all class rows to div views:
+$("body").bind('keydown', function(e) {
+  if (e.shiftKey && e.keyCode == 86) {
+    var Actions = Parse.Object.extend("Actions");
+    var query = new Parse.Query(Actions);
+    query.find({
+      success: function(object) {
+        for(var i = 0; i< object.length; i++){
+          $('#viewing').append('<li>' + object[i]._serverData.actionName + '</li>');
+        }
+      },
+      error: function(error) {
+        alert("Error: " + error.code + " " + error.message);
+      }
+    });
+  }
+})
+</script>
+</html>

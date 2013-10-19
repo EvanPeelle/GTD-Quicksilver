@@ -1,0 +1,272 @@
+<html>
+<head>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <link rel="stylesheet" href="library/style.css">
+  <script src="library/Chart.js"></script>
+  <script src="library/parse.js"></script>
+</head>
+<body>
+  <title>GTD</title>
+  <div id='layout'>
+    <div id='column'>
+      <div id='importColumn'>Import Portal
+        <textarea rows="9" cols="5" id="newItems"></textarea>
+        <button id="import">inbox import</button>
+      </div>
+      <em id='in'>inbox</em><br>
+      <input type='text' value='' id="search"><br>
+      <div id='list'></div>
+      <em>actionVerb</em><br>
+      <input type='text' value='' id="search2">
+        <div id='actionVerb'></div>
+        <div id='radBut'>
+          <div id='actionContext'><em>where?</em><br>
+            <input type="radio" name="context1" class="contextClass" style="width: 10%; " value="@online" title="MyText"/> <span>@web</span><br>
+            <input type="radio" name="context1" class="contextClass" style="width: 10%; " value="@local"/> <span>@off</span><br>
+            <input type="radio" name="context1" class="contextClass" style="width: 10%; " value="@away"/> <span>@away</span><br>
+          </div>
+          <div id='actionTime'><em>duration?</em><br>
+            <input type="radio" name="time1" class="timeClass" style="width: 10%; " value="mins"/> <span>5 min</span><br>
+            <input type="radio" name="time1" class="timeClass" style="width: 10%; " value="block"/> <span>15 min</span><br>
+            <input type="radio" name="time1" class="timeClass" style="width: 10%; " value="ongoing"/> <span>50 min</span><br>
+          </div>
+        </div>
+        <br><em>projects Outcome</em>
+        <div id='processProjects'>
+          <input id='projectsInput'><br>
+          <input type="text" value='+actions...' id="actionAttached">
+        </div>
+        <div id='projects'></div>
+        <a href="https://www.google.com/calendar/render?tab=mc" target="_blank">
+          <em>calendar</em>
+        </a>
+        <input id='calendarInput'>
+        <div id='calendar'></div>
+        <a href="https://docs.google.com/spreadsheet/ccc?key=0Arbw3VZyZ1zudHQ0MWtiYkFUdlZiYVItdl9aYWJMUVE#gid=2" target='_blank'>
+          <em>areas of focus</em></a>
+        <div id='aof'></div>
+        <a href="https://docs.google.com/spreadsheet/ccc?key=0Arbw3VZyZ1zudHQ0MWtiYkFUdlZiYVItdl9aYWJMUVE#gid=2" target='_blank'>
+          <em>goals</em>
+        </a>
+        <input id='goalsInput'>
+        <div id='goals'></div>
+        <a href="https://docs.google.com/document/d/1N_IG1j13_tz7ZjmZNp36K9TUESgbcbFTnBIbKTYsJmQ/edit#heading=h.uxuzqgrbxnvq" target='_blank'>
+          <em>vision</em>
+        </a>
+      <div id='vision'></div>
+    </div>
+    <div id='viewing'>Viewing Chamber</div>
+  </div>
+</body>
+<script>
+
+
+
+
+Parse.initialize("9YwjuJO5DCYjjWXjIEwW9iYrYfwPL1Lv68PDLLS3", "dqqjAMVw5VW4n3OnUyOa3CCIykaFZaOzW5heRL6C");
+
+// var TestObject = Parse.Object.extend("TestObject");
+// var testObject = new TestObject();
+// testObject.save({foo: "bar"}, {
+//   success: function(object) {
+//     alert("yay! it worked");
+//   }
+// });
+
+var ProjectObject = Parse.Object.extend("ProjectObject");
+var projects = new ProjectObject();
+ProjectObject.save({foo: "bar"}, {
+  success: function(object) {
+    alert("d");
+  }
+});
+
+
+//make persistant - using parse or another db in the cloud.
+  //firebase, or parse
+//fix radio buttons(or simplify)
+  //filter the view with actions by context...
+  //list does not need @s or Times because it can be sorted without them on next page.
+//hide all divs except for current one...
+
+
+//import portal
+$('#import').click(function() {
+  var items = $('#newItems').val().split('\n');
+  if(items == false){return false}
+  $('#newItems').val('');
+  _.each(items, function(item){
+     $('#list').prepend('<li>' + item + '</li>');
+  });
+})
+
+//start of app
+document.getElementById('search').focus()
+
+//enter new items into inbox
+$("#search").keyup(function (e) {
+  var value = $(this).val();
+  if(value == false){return false}
+  else if (e.keyCode == 13) {
+    $(this).val('');
+    $('#list').append('<li>' + value + '</li>');
+  }
+}).keyup();
+
+//delete within each list
+  $("body").bind('keydown', function(e) {
+    if (e.shiftKey && e.keyCode == 68) {
+      var doc = document.activeElement;
+      if($(doc).attr('id') == 'search'){
+        $('#list').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'search2'){
+        $('#actionVerb').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'projectsInput'){
+        $('#projects').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'actionVerb'){
+        $('#actionVerb').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'actionAttached'){
+        $('#actionAttached').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'calendar'){
+        $('#calendar').children().first().remove()
+      }
+      else if($(doc).attr('id') == 'search'){
+        $('#vision').children().first().remove()
+      }
+      return false;
+    }
+  })
+  //begin thinking about underscore and all the ways that true and false can work with this... reduce, etc.
+  //or use default to make the objs of the dom with the data i want all set.
+
+var keys = {
+  '#vision': 86,
+  '#calendar': 67,
+  '#goals': 71,
+  '#aof': 70,
+  '#projects': 80,
+  '#actionVerb': 65,
+};
+
+//doc ready hide the div - later reveal it
+$("#viewing").hide(800);
+//shift t for viewing panel v. processing panel
+$("body").bind('keydown', function(e) {
+  if (e.shiftKey && e.keyCode == 84) {
+    $("#column").toggle(1200);
+    $("#viewing").toggle(100);
+    //loop through action list and place in view
+    $('#actionVerb').each(function() {
+      var li_element = $(this).html();
+      $('#viewing').append('<p>'+li_element+'</p>');
+    });
+    return false;
+  }
+})
+
+//input for all boxes.
+$("body").bind('keydown', function(e) {
+  for( var k in keys) {
+    if (e.shiftKey && e.keyCode == keys[k]) {
+      var $itemPassed = $('#list').children().first()
+      $(k).append($itemPassed);
+      return false;
+    }
+  }
+})
+
+//edit and replace actions in Action queue.
+$("#search2").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $('#actionVerb').append('<li>' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $(this).val('');
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+  }
+})
+
+
+//get all radio buttons working(change navi so something !tab will work)
+  //radio buttons are not showing the selector navi?
+
+//CONTEXT Radio :
+$("input[name='context1']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var one = $('input[name="context1"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + one + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+
+//TIME Radio button :
+$("input[name='time1']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var two = $('input[name="time1"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + two + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+
+//PROJECTS:
+$("#projectsInput").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $(this).val('');
+    $('#projects').append('<li>' + value + '</li>');
+    $('#projects').children().first().remove()
+  }
+})
+
+//project: action append.
+$("#actionAttached").bind('keydown', function(e) {
+  var value = $(this).val();
+  var projectId = $('#projects').children().first().html()
+  if (e.keyCode == 13) { //newone => enter
+    if(value == false){return false}
+    if(projectId == undefined){projectId = ''}
+    //limit characters(end or beginning?)
+    projectId = projectId.slice(5,16);
+    $('#actionVerb').append('<li>' + '<span id="proStyle">' + projectId + '</span>' + ' < ' + value + '</li>');
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 68) { //delete => d
+    $('#actionVerb').children().first().remove();
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    $(this).val('');
+    var contained = $('#projects').children().first().get()
+    $('#projects').append(contained);
+    e.preventDefault()
+  }
+})
+</script>
+</html>

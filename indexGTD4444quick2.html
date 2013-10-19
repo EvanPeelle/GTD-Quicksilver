@@ -1,0 +1,54 @@
+<html>
+<head>
+  <script src="library/verbList.js"></script>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <script src="library/Chart.js"></script>
+  <script src="library/parse.js"></script>
+  <link rel="stylesheet" href="library/style.css">
+</head>
+<body>
+  <div>
+    <li>hello and accept it as it is</li>
+    <li>goodbye</li>
+    <li id='one'>hello 000</li>
+    <li>gooooooood</li>
+    <li>as it is</li>
+    <li>bye</li>
+  </div>
+ <div></div>
+ <textarea id='output'></textarea>
+</body>
+<script>
+
+
+
+var combined = {
+  'search':        [undefined, '#list'],
+  'visionInput':   [86,'#vision'],
+  '':              [67,'#calendar'],
+  'goalsInput':    [71,'#goals'],
+  'aofInput':      [70,'#aof'],
+  'projectsInput': [80,'#projects'],
+  'search2':       [65,'#actionVerb']
+};
+
+$('body').click(function(){
+  console.log(Object.keys(combined))
+})
+
+// for ( property in combined ) {
+//   console.log( property ); // Outputs: foo, fiz or fiz, foo
+// }
+
+
+
+
+
+
+
+
+
+</script>
+</html>

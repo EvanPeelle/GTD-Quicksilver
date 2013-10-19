@@ -1,0 +1,285 @@
+<html>
+<head>
+  <script src="library/jquery.js"></script>
+  <script src="library/underscore.js"></script>
+  <script src="library/backbone.js"></script>
+  <link rel="stylesheet" href="library/style.css">
+  <script src="library/Chart.js"></script>
+  <script src="library/parse.js"></script>
+</head>
+<body>
+  <title>GTD</title>
+  <div id='layout'>
+    <div id='column'>
+      <div id='importColumn'>Import Portal
+        <textarea rows="9" cols="5" id="newItems"></textarea>
+        <button id="import">inbox import</button>
+      </div>
+      <em id='in'>inbox</em><br>
+      <input type='text' value='' id="search"><br>
+      <div id='list'></div>
+      <em>actionVerb</em><br>
+      <input type='text' value='' id="search2">
+        <div id='actionVerb'></div>
+        <div id='radBut'>
+          <div id='actionContext'><em>where?</em><br>
+            <input type="radio" name="context1" class="contextClass" style="width: 10%; " value="@online" title="MyText"/> <span>@web</span><br>
+            <input type="radio" name="context1" class="contextClass" style="width: 10%; " value="@local"/> <span>@off</span><br>
+            <input type="radio" name="context1" class="contextClass" style="width: 10%; " value="@away"/> <span>@away</span><br>
+          </div>
+          <div id='actionTime'><em>duration?</em><br>
+            <input type="radio" name="time1" class="timeClass" style="width: 10%; " value="mins"/> <span>5 min</span><br>
+            <input type="radio" name="time1" class="timeClass" style="width: 10%; " value="block"/> <span>15 min</span><br>
+            <input type="radio" name="time1" class="timeClass" style="width: 10%; " value="ongoing"/> <span>50 min</span><br>
+          </div>
+        </div>
+        <br><em>projects Outcome</em>
+        <div id='processProjects'>
+          <input id='projectsInput'><br>
+          <input type="text" value='+actions...' id="actionAttached">
+        </div>
+        <div id='projects'></div>
+        <a href="https://www.google.com/calendar/render?tab=mc" target="_blank">
+          <em>calendar</em>
+        </a>
+        <input id='calendarInput'>
+        <div id='calendar'></div>
+        <a href="https://docs.google.com/spreadsheet/ccc?key=0Arbw3VZyZ1zudHQ0MWtiYkFUdlZiYVItdl9aYWJMUVE#gid=2" target='_blank'>
+          <em>areas of focus</em></a>
+        <div id='aof'></div>
+        <a href="https://docs.google.com/spreadsheet/ccc?key=0Arbw3VZyZ1zudHQ0MWtiYkFUdlZiYVItdl9aYWJMUVE#gid=2" target='_blank'>
+          <em>goals</em>
+        </a>
+        <input id='goalsInput'>
+        <div id='goals'></div>
+        <a href="https://docs.google.com/document/d/1N_IG1j13_tz7ZjmZNp36K9TUESgbcbFTnBIbKTYsJmQ/edit#heading=h.uxuzqgrbxnvq" target='_blank'>
+          <em>vision</em>
+        </a>
+      <div id='vision'></div>
+    </div>
+    <div id='viewing'>Viewing Chamber</div>
+  </div>
+</body>
+<script>
+document.getElementById('search').focus()
+
+Parse.initialize("9YwjuJO5DCYjjWXjIEwW9iYrYfwPL1Lv68PDLLS3", "dqqjAMVw5VW4n3OnUyOa3CCIykaFZaOzW5heRL6C");
+
+var Projects = Parse.Object.extend('Projects');
+var Actions = Parse.Object.extend('Actions');
+
+//import portal
+$('#import').click(function() {
+  var items = $('#newItems').val().split('\n');
+  if(items == false){return false}
+  $('#newItems').val('');
+  _.each(items, function(item){
+     $('#list').prepend('<li>' + item + '</li>');
+  });
+})
+
+//enter new items into inbox
+$("#search").keyup(function (e) {
+  var value = $(this).val();
+  if(value == false){return false}
+  else if (e.keyCode == 13) {
+    $(this).val('');
+    $('#list').append('<li>' + value + '</li>');
+  }
+}).keyup();
+
+//delete within each list => [add db matching and deletion]
+$("body").bind('keydown', function(e) {
+  if (e.shiftKey && e.keyCode == 68) {
+    var doc = document.activeElement;
+    if($(doc).attr('id') == 'search'){
+      $('#list').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'search2'){
+      $('#actionVerb').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'projectsInput'){
+      $('#projects').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'actionVerb'){
+      $('#actionVerb').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'actionAttached'){
+      $('#actionAttached').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'calendar'){
+      $('#calendar').children().first().remove()
+    }
+    else if($(doc).attr('id') == 'search'){
+      $('#vision').children().first().remove()
+    }
+    return false;
+  }
+});
+
+var keys = {
+  '#vision': 86,
+  '#calendar': 67,
+  '#goals': 71,
+  '#aof': 70,
+  '#projects': 80,
+  '#actionVerb': 65,
+};
+//insert into respective div using key.[not db integrated][use it to save to respective DB class]
+$("body").bind('keydown', function(e) {
+  for( var k in keys) {
+    if (e.shiftKey && e.keyCode == keys[k]) {
+      var $itemPassed = $('#list').children().first()
+      $(k).append($itemPassed);
+      return false;
+    }
+  }
+})
+
+
+//shift + T : perform find and add new actions => print them.//trying...???
+$("body").bind('keydown', function(e) {
+  if (e.shiftKey && e.keyCode == 84) {
+    saveActions(update(findVisualize()))
+  }
+})
+
+//find and append each action into the vis div.
+var findVisualize = function() {
+  var query = new Parse.Query(Actions);
+  query.find({
+    success: function(object) {
+      for(var i = 0; i < object.length; i++){
+        $('#viewing').append('<li>' + object[i]._serverData.actionName + '</li>');
+        console.log(object[i]._serverData.actionName);
+      }
+    },
+    error: function(error) {
+      alert("Error: " + error.code + " " + error.message);
+    }
+  })
+}
+
+var saveActions = function(func) {
+  $('#actionVerb li').each(function(index) {
+    var value = $(this).html()
+    var actions = new Actions();//
+    actions.save({actionName: value}, {
+      success: function(object) {
+        console.log('part 1 iteration', object);//goes 3x
+      },
+      error: function(error) {
+        alert("Error: " + error.code + " " + error.message);
+      }
+    })
+  })
+}
+
+var update = function(func) {
+  var actions = new Actions();
+  actions.save(null, {
+  success: function(object) {
+    actions.set("actionName", 'updated the action name');
+    actions.save();
+  }
+});
+}
+
+//edit and replace actions in Action queue.
+$("#search2").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $('#actionVerb').append('<li>' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $(this).val('');
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    //actions is not defined(closed scope?)
+    //actions.set("actionName", value);
+    //actions.save();
+  }
+})
+
+
+//get all radio buttons working(change navi so something !tab will work)
+  //radio buttons are not showing the selector navi?
+
+//CONTEXT Radio :
+$("input[name='context1']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var one = $('input[name="context1"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + one + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+
+//TIME Radio button :
+$("input[name='time1']").bind('keydown', function(e) {
+  if (e.keyCode == 13) {
+    var two = $('input[name="time1"]:checked').val();
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    var value = $('#search2').val();//iterate over the values? .each, for loop? is it an object yet? what are the clear distinctions between the attr and props of the dom.
+    $('#search2').val('');
+    $('#actionVerb').append('<li>' + two + ' < ' + value + '</li>');
+    $('#actionVerb').children().first().remove()
+    $("input[type='radio']").each(function(){
+      $(this).prop('checked', false);
+    });
+    document.getElementById('search2').focus();
+  }
+})
+
+//PROJECTS: + Persistant additions of projects
+$("#projectsInput").bind('keydown', function(e) {
+  var value = $(this).val();
+  if (e.keyCode == 13) {
+    $(this).val('');
+    $('#projects').append('<li>' + value + '</li>');
+    $('#projects').children().first().remove()
+    // //Persistant  -- how to add more to the queue  without overwriting?
+    // var projects = new Projects();
+    // projects.save({projectName: value}, {
+    //   success: function(object) {
+    //     alert('pang');
+    //   }
+    // });
+  }
+})
+
+//project: action append.
+$("#actionAttached").bind('keydown', function(e) {
+  var value = $(this).val();
+  var projectId = $('#projects').children().first().html()
+  if (e.keyCode == 13) { //newone => enter
+    if(value == false){return false}
+    if(projectId == undefined){projectId = ''}
+    //limit characters(end or beginning?)
+    projectId = projectId.slice(5,16);
+    $('#actionVerb').append('<li>' + '<span id="proStyle">' + projectId + '</span>' + ' < ' + value + '</li>');
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 68) { //delete => d
+    $('#actionVerb').children().first().remove();
+    $(this).val('');
+  }
+  else if (e.shiftKey && e.keyCode == 78) { //next => n
+    $(this).val('');
+    var contained = $('#projects').children().first().get()
+    $('#projects').append(contained);
+    e.preventDefault()
+  }
+})
+</script>
+</html>
