@@ -1,114 +1,30 @@
-//@sublime add project feature: "GTD feature:
-//(depth v. span in project progress) - when next action is complete the action gets updated from the queue in a project object."
-
-//purpose - speed up and clearly execute my actions in a single place.
-//DESIGNED for depth of execution - project has depth with many actions in line.[not spreading thinner with many types]
-//Deep and narrow is the power play.
-//collect, process, organize, develop/grow/edit, archive completed actions.
-// *make it so that I only see what is currently being worked on one at a time(never more)(hide features)
-//   *bring the one item to the forefront for trial across context/etc then remove from site. assembly line thinking.
-
-//instantiate a collection(on upload)?
-//have projects work in full
-  //when shift p is pressed move it to the db
-    //when return is entered update the one it's on(first)
-      //when shift d is pressed erase the item from db
-        //when it is edited in the window it is updated
-        //when the next is pressed, nothing happens
-
-        //actions: same except a new feild is added based on radio buttons...?
-
-//make persistant - using parse or another db in the cloud.
-  //firebase, or parse
-//fix radio buttons(or simplify)
-  //filter the view with actions by context...
-  //list does not need @s or Times because it can be sorted without them on next page.
-//hide all divs except for current one...
 
 
-//the radio buttons :
-    //filter and bucketed by 'context' tag.
-      //prioritized order by 'time' tag.
-  //color tags
-  //add multiple tags to them.
-  //tab will show which is being selected
-  //a speed key will navigate from one to the next
-  //the radio buttons will be compact and short, next to feild.
-//Radio Btn - move the options to the side of the column streamlined.
-  //new div for viewing of actions only.
-  //make filter for the @context actions, show as list.
+PURPOSE:
+speed up and clearly collect/process/execute/update/track progress in a single place.DESIGNED:
+depth of execution with many actions in line.[not spreading thinner with many types]
+@GTD - gamify productivity - waits/done now whats/depth of action completion/ project pods - speed of work flow, simplicity of visual, / flexibility of items.
+when next action is complete the action gets updated from the queue in a project object."
 
-//hides the other with a button/click)
-//setup a timer for the processing and on page. resets each time i come back, it's visible.
+TODOS:
+- clean up files to be singular
+- error handle the dependency loading issues... IIF
 
-//project actions: add the pro-tag as seperate p that can't be overwritten.
-  //additional <li> next to it, with id for css. insert()?
+@FILTER - @autofill and tab speed key.
 
-//lock safe the touch of each list item.
-  //100% counter - finishes out.
-  //limit the number of shown items(horse blinders) and include locksafe to see % to the end single focus.
+folding projects bullet points for reference...?
 
-//ACTIONS LIST
-  //iterate through entire list of verbs and color the string if it is there  - improves the process!
-  //if a project does not have any actions associated - css red.
+2 - persistance cross device(hosted)
 
-// smooth fade in of items as added or removed.
-// smooth fade out when skipped over to next element input.
+3 - output to another page that can be speed key interacted with
+  - when item is completed the next is queued up under projects
+  - whole new plan and setup with that... plan that.
 
-//BUGS:
-//when the append to visualize div is called it is out of sync with saving from left div.
-//when append is called it grabs an extra 'a' and appends it.
-
-//GOALS
-//go to goals and see if projects fit into them.. or other way around... remove if needed.
-
-//make persistant with a single update: Parse? other? online could services?
-//develop an sms sender from twillio hookup.(out and about tasks) how to mark them as complete?
-//develop a timely send down of desktop tasks.
+4 - sms message on the go events to my phone as text messages [twillio api]
 
 
+ - do i really need reference?
+see one item being worked on at a time. smooth fade in of items as added or removed. smooth fade out when skipped over to next element input.hidden gridation of opacity as list goes down...
+develop a timely send down of desktop tasks.(csv download?)
 
-
-
-//DONE:
-//render the action Li's on it).
-//when shift T is pressed on  body -
-    //go to the view panel: (slide that in, unhide it,
-//one div that is for viewing, one div that is for process.(each
-//space out proj, and act.
-//@Proj-action: proj label is lighter and colored like proj.
-  //limit characters of a proj-action tag.
-  //'N' when pressing shift N Proj-action
-//list inbox: if it's empty do not add.
-//project actions: if it's empty do not add.
-//open areas of focus in a new tab url.
-//open vision with a new window too.
-//maybe goals too..
-//calendar would be a quick fix for now.
-//form input gets printed to dom
-//form input is turned into an individual object
-//takes input from the user
-//collects input into an interface
-//include one checked radio button with the input box - into console.logs.
-//press enter(while cursor is anywhere on div) to capture each of the form datas.
-  //take that form data and replace the <li> with the combined data.
-    //move selector back up to the input.
-    //add another input for actions that are attached to project...
-    //each action will be branded with first li on projects...
-    //import files to be automatically parsed into li's.
-  //just list text files.
-  //consolidate ids into classes.
-  //how do i nest them cascade?
-  //how do i keep them dry?
-//@PROJECT ACTION - create a cycle button (next)
-  //add a delete button to it also.
-  //use an array to iterate through the variables of each.
-//if it is found perform the function with the coresponding object.
-//consolidate functions dramatically:
-  //pass parameters
-  //pass in a keychain of $nodes
-// objs['#list']
-// objs[objs.list]
-
-TAKEAWAYS:
-//my mind needs to be clearer than the code.
+DONE:my mind needs to be clearer than the code.
