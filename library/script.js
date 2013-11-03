@@ -3,9 +3,7 @@
   //look at design patterns - to solve this data leak issue, } not lining up.
   // Deal with the async issues in a sequencial manner.
 
-//import deletes after click?
 //list send changes the horizon to each...?
-//append each list into each div on start...
 
 //build out workplace
 
@@ -21,6 +19,7 @@ client.authenticate();
       var taskTable = datastore.getTable('tasks');
       //each record specified by horizon.
       var results = taskTable.query();
+      var list = taskTable.query({horizon: 'listed'});
       var action = taskTable.query({horizon: 'action'});
       var project = taskTable.query({horizon: 'project'});
       var focus = taskTable.query({horizon: 'focus'});
@@ -41,10 +40,102 @@ client.authenticate();
       {completed: false}
     ];
 
-  //append all db items to projects div from the start.
-  for (var k=0; k<results.length;k++ ) {
-    $("#projects").append( "<li>"+results[k].get("taskname") + "</li>");
+
+
+//append all db items to projects div from the start.
+  for (var k=0; k<list.length;k++ ) {
+    $("#list").append( "<li>"+list[k].get("taskname") + "</li>");
   };
+
+  //append all db items to projects div from the start.
+  for (var k=0; k<action.length;k++ ) {
+    $("#actionVerb").append( "<li>"+action[k].get("taskname") + "</li>");
+  };
+  //append all db items to projects div from the start.
+  for (var k=0; k<project.length;k++ ) {
+    $("#projects").append( "<li>"+project[k].get("taskname") + "</li>");
+  };
+  //append all db items to projects div from the start.
+  for (var k=0; k<focus.length;k++ ) {
+    $("#aof").append( "<li>"+focus[k].get("taskname") + "</li>");
+  };
+  //append all db items to projects div from the start.
+  for (var k=0; k<goal.length;k++ ) {
+    $("#goals").append( "<li>"+goal[k].get("taskname") + "</li>");
+  };
+  //append all db items to projects div from the start.
+  for (var k=0; k<vision.length;k++ ) {
+    $("#vision").append( "<li>"+vision[k].get("taskname") + "</li>");
+  };
+  //append all db items to projects div from the start.
+  for (var k=0; k<wait.length;k++ ) {
+    $("#waiting").append( "<li>"+wait[k].get("taskname") + "</li>");
+  };
+  //append all db items to projects div from the start.
+  for (var k=0; k<calendar.length;k++ ) {
+    $("#calendar").append( "<li>"+calendar[k].get("taskname") + "</li>");
+  };
+
+
+
+//setTimeout()//on the lengths then update...?
+var aa = $('#list li').length;
+var bb = $('#actionVerb li').length;
+var cc = $('#projects li').length;
+var dd = $('#aof li').length;
+var ee = $('#goals li').length;
+
+var dataset = {
+  apples: [ aa, bb, cc, dd, ee ],
+};
+
+//Doughnut Specs
+var width = 350,
+    height = 280,
+    radius = Math.min(width, height) / 2;
+
+var color = d3.scale.category20();
+
+var pie = d3.layout.pie()
+    .sort(null);
+
+var arc = d3.svg.arc()
+    .innerRadius(radius - 240)
+    .outerRadius(radius - 250);
+
+var svg = d3.select("#doughnut").append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .append("g")
+    .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+var path = svg.selectAll("path")
+    .data(pie(dataset.apples))
+  .enter().append("path")
+    .attr("fill", function(d, i) { return color(i); })
+    .attr("d", arc);
+
+//
+
+d3.selectAll("input")
+      .on("change", change);
+
+  var timeout = setTimeout(function() {
+    d3.select("#doughnut").property().each(change);
+  }, 2000);
+
+  function change() {
+    var value = this.value;
+    clearTimeout(timeout);
+    pie.value(function(d) { return d[dataset.apples[0]]; }); // change the value function
+    path = path.data(pie); // compute the new angles
+    path.attr("d", arc); // redraw the arcs
+  }
+
+//toggle the weekly review questions:
+// $('#weeklyReview').on(function(){
+//   $('weeklyReview').toggle();
+// })
 
   //delete all completed items on button click.
   $('#eraser').click(function() {
@@ -101,7 +192,7 @@ client.authenticate();
 
     //print each action li into output
     $('button').click(function() {
-      var contents = ''
+      var contents = '';
       $("#actionVerb li").each(function() {
         contents = contents + $(this).text() + '\n';
       });
@@ -155,9 +246,10 @@ client.authenticate();
               var passed = $(combined[i][2]).children().first();
               $(combined[j][2]).append(passed);
 
+              //trying to attach the correct 'horizon' to the speed key typed.
               // results[0].set('horizon', combined[i][3]);
-              firstTask.set('horizon', combined[i][3]);
-              // return false;
+              //firstTask.set('horizon', combined[i][3]);
+              return false;
             }
           }
         }
@@ -187,8 +279,9 @@ client.authenticate();
         var formFill = '';
 
         $('#actionVerb li').sort(function(a, b) {
-        var at = $(a).text(), bt = $(b).text();
-        return (at > bt)?1:((at < bt)?-1:0);
+          var at = $(a).text();
+          var bt = $(b).text();
+          return (at > bt) ? 1 : ((at < bt) ? -1 : 0);
         }).appendTo($('#filtered'));
   //remove this extra step.
         $('#filtered li').each(function(index, elem) {
@@ -196,16 +289,18 @@ client.authenticate();
           formFill = formFill + content + '\n';
         });
       $('#output').val(formFill);
-      //projects feild for output2
-      var formFill2 = '';
-        $('#projects li').each(function(index, elem) {
-          var content2 = $(this).text();
-          formFill2 = formFill2 + content2 + '\n';
-        });
-        $('#output2').val(formFill2);
-        return false;
+      return false;
       }
     });
+
+//shift + R = moves into work mode panel...
+    $("body").bind('keydown', function(e) {
+      if (e.shiftKey && e.keyCode == 82) {
+        $( "#filtered" ).toggle('show')
+//trying to activate the panel to open on screen.
+
+      }
+    })
 
     //delete within each list[√]
     $("body").bind('keydown', function(e) {
