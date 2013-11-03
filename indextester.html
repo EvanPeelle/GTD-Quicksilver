@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="library/style.css">
 </head>
 <body>
+  <input id='in'>
     <div id="take">take it from here
       <li>@abc single</li>
       <li>@home double</li>
@@ -23,72 +24,49 @@
   </div>
 <!-- <script src="library/tester.js"></script> -->
 <script>
+//closure study - localizing variables access.
 
-$('#take li').click(function() {
-  filter()
-  console.log('worked')
-});
 
-var filter = function(){
-    $('#take li').each(function() {
-      var str = $(this).text();
-      var strHtml = $(this);
-      var n = str.indexOf("@");
-      var m = str.indexOf(" ");
-      if(n != -1){
-        var snip = str.slice(n, str.length);
-        // console.log(n,"n",m,"m");
-        // console.log('snip>', snip);
-        var snippent = str.slice(n, m);
-        // console.log('sliced snippet>', snippent);
-        var $takeLi = $('#take li');
-        for (var i = $takeLi.length - 1; i >= 0; i--) {
-          var single = $takeLi[i];
-          // console.log($takeLi[i].innerHTML , single.innerHTML, str)
-          // console.log(snippent, snip)
-          //not duplicate so do this...
-          if($takeLi[i].innerHTML != str){
-            console.log($takeLi[i].innerHTML)
-            //and has @ same as give then
+var client = new Dropbox.Client({key: 'j37v18c5tdi8xu4'});
+  client.authenticate();
 
-            if(indexOf(single) != -1('@abc')){
-              console.log('@abc')
-            }
-
-            //otherwise create new div + id and append into it
-            // else if(){}
-
-          // if($('#give').contains(snip)){
-          //   $('#give').append('<li>' + snip + '</li>');
-          // }
-
-            //if different than this one...
-          }
-
-        }
-        //if it's exact to the current str, skip it √
-        //if it's present in give already, skip it ***
-        //all else
-          //if snip == snip of index[i]
-            //then append to give
-//each div id in the app - with class id of that snippet.
-//search for the div id with @xxx in it
-  //found it - then append a new li to it
-  //did not find it - create new div - append it to 2nd view div.
+  if (client.isAuthenticated()) {
+    // Client is authenticated. Display UI.
+    var datastoreManager = client.getDatastoreManager();
+    datastoreManager.openDefaultDatastore(function (error, datastore) {
+      if (error) {
+        alert('Error opening default datastore: ' + error);
       }
-    })
-  };
+      var taskTable = datastore.getTable('tasks');
 
+      $('#take').click(function() {
+        var results = taskTable.query({completed: true});
+        for (var i = 0; i < results.length; i++) {
+          results[i].deleteRecord();
+          console.log('deleted', results[i]);
+          console.log('worked')
+        };
+      });
 
-// what the fuck is happending? total overwhelm from all the moving parts and buggy code that is written. 
-// I am having flashbacks of me being a total failure in code, and it is reflecting in my shit ability to do
-// nearly anything in the code here. I am on a saturday night coding, this is weird? I am weird? I cannot trust
-// myself and my crazy shit going on. I am in a full swing of not knowing what to do with my own OS.
+$("#in").keyup(function (e) {
+    var value = $(this).val();
+    if(value == false){return false};
+    if(e.keyCode == 13) {
+      $(this).val('');
+      $('#give').append('<li>' + value + '</li>');
 
-// what if I write the code from scratch again! what if I avoided reading docs over and over again. what if I 
-// just wrote it with what i knew. or what about stealling whats is already out there for great filtering issues.
-// what about just plowing through all these fucking retarded issues. what about being okay with myself as i am 
-// and not trying to prove myself to everyone all the time. I am so lonely and isolating of myself that it is suffocating.
+      var firstTask = taskTable.insert({
+      taskname: value,
+      completed: false,
+      created: new Date()
+      });
+
+      return false;
+    }
+  }).keyup();
+
+    });
+};
 
   </script>
 </body>
